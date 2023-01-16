@@ -3,9 +3,11 @@
   "version": "0.0.1",
   "description": "glue client sdk for gluestack apps",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "type": "module",
   "scripts": {
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "build": "tsc"
   },
   "author": "Shivam Singhal",
   "license": "ISC",

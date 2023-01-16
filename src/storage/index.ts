@@ -1,5 +1,5 @@
 import axios from "axios";
-var FormData = require("form-data");
+import FormData from "form-data";
 import { IStorage } from "./interfaces/IStorage";
 
 export class Storage implements IStorage {
