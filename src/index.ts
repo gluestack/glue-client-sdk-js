@@ -11,3 +11,8 @@ export class Glue implements IGlue {
     this.storage = new Storage();
   }
 }
+
+
+
+// EXPORTING INTERFACES
+export * from "./auth/interfaces"

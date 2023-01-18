@@ -1,4 +1,5 @@
 import axios from "axios";
+import { ILogin, IUserWithToken } from "./interfaces";
 import { IAuth } from "./interfaces/IAuth";
 import IAuthProviderEnum from "./interfaces/IAuthProviderEnum";
 
@@ -12,55 +13,110 @@ export class Auth implements IAuth {
 
   async loginWithEmailPassword(email: string, password: string) {
     try {
-      const { data } = await axios.post(
+      const { data } = await axios.post<IAPIResponse<IUserWithToken>>(
         `${this.authBaseUrl}/authentication/signin`,
         {
           email,
           password,
-        },
+        }
       );
-      this.setAuthToken(data.data.token);
-      return data.data;
-    } catch (e) {
-      //
+      if (data?.success && data?.data) {
+        // SET THE TOKEN
+        this.setAuthToken(data.data.token);
+        return data?.data;
+      }
+
+      return data?.message;
+    } catch (error) {
+      let message = "Something went wrong";
+      if (axios.isAxiosError(error)) {
+        message = error.message;
+      }
+      return message;
     }
   }
 
   async socialLogin(provider: IAuthProviderEnum) {
-    window.onmessage = (event) => {
-      if (event.data) {
-        this.setAuthToken(event.data);
-      }
-    };
+    return new Promise<IUserWithToken | string | null>(
+      async (resolve, reject) => {
+        window.onmessage = async (event) => {
+          if (event.data && typeof event.data === "string") {
+            const data = JSON.parse(event?.data);
 
-    window.open(
-      `${this.authBaseUrl}/authentication/signin/${provider}`,
-      "_blank",
-      "location=yes,height=570,width=520,scrollbars=yes,status=yes",
+            if ("token" in data) {
+              this.setAuthToken(data.token);
+              try {
+                const userWithToken = await this.getUser();
+
+                if (userWithToken) {
+                  resolve(userWithToken);
+                  return;
+                }
+              } catch (error) {
+                resolve(null);
+              }
+            }
+          }
+        };
+
+        window.open(
+          `${this.authBaseUrl}/authentication/signin/${provider}`,
+          "_blank",
+          "location=yes,height=570,width=520,scrollbars=yes,status=yes"
+        );
+      }
     );
-    return "";
+  }
+
+  //@signupWithEmail
+  async signupWithEmail(name: string, email: string, password: string) {
+    try {
+      const { data } = await axios.post<IAPIResponse<IUserWithToken>>(
+        `${this.authBaseUrl}/authentication/signup`,
+        {
+          name,
+          email,
+          password,
+        }
+      );
+
+      if (data?.success && data?.data) {
+        // SET THE TOKEN
+        this.setAuthToken(data.data.token);
+
+        return data?.data;
+      }
+
+      // RESPONSE
+      return data?.message;
+    } catch (error) {
+      let message = "Something went wrong";
+
+      if (axios.isAxiosError(error)) {
+        message = error.message;
+      }
+
+      return message;
+    }
   }
 
   //@login
-  async login(authObject: {
-    provider?: IAuthProviderEnum;
-    email?: string;
-    password?: string;
-  }) {
-    if (authObject.provider) {
+  async login(authObject: ILogin) {
+    if ("provider" in authObject) {
       switch (authObject.provider) {
         case IAuthProviderEnum.google:
+          return await this.socialLogin(authObject.provider);
         case IAuthProviderEnum.github:
+          return await this.socialLogin(authObject.provider);
         case IAuthProviderEnum.microsoft:
           return await this.socialLogin(authObject.provider);
       }
     }
-    if (authObject.email && authObject.password) {
-      return await this.loginWithEmailPassword(
-        authObject.email,
-        authObject.password,
-      );
-    }
+
+    return await this.loginWithEmailPassword(
+      authObject.email,
+      authObject.password
+    );
   }
 
   //@setAuthToken
@@ -76,21 +132,21 @@ export class Auth implements IAuth {
 
   //@getUser
   async getUser() {
+    console.log("AUTH TOKEN", this.authToken);
+
     if (this.authToken) {
       try {
-        const { data } = await axios.post(
+        const { data } = await axios.get(
           `${this.authBaseUrl}/authentication/me`,
-          {},
           {
             headers: {
               "x-hasura-user-token": this.authToken,
             },
-          },
+          }
         );
-        this.setAuthToken(data.data.token);
-        return data.data;
+        return data;
       } catch (e) {
-        //
+        return null;
       }
     }
     return null;
