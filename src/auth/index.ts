@@ -7,8 +7,9 @@ export class Auth implements IAuth {
   authBaseUrl: string = "";
   authToken: string = "";
 
-  constructor(AUTH_BASE_URL: string) {
+  constructor(AUTH_BASE_URL: string, AUTH_TOKEN?: string) {
     this.authBaseUrl = AUTH_BASE_URL;
+    this.authToken = AUTH_TOKEN ?? "";
   }
 
   async loginWithEmailPassword(email: string, password: string) {
@@ -132,8 +133,6 @@ export class Auth implements IAuth {
 
   //@getUser
   async getUser() {
-    console.log("AUTH TOKEN", this.authToken);
-
     if (this.authToken) {
       try {
         const { data } = await axios.get(
