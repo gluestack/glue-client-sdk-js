@@ -12,6 +12,7 @@
   "author": "Shivam Singhal",
   "license": "ISC",
   "dependencies": {
+    "@ungap/event-target": "^0.2.3",
     "axios": "^1.2.2",
     "form-data": "^4.0.0",
     "ts-loader": "^9.4.2"

@@ -1,15 +1,21 @@
 import axios from "axios";
-import { ILogin, IUserWithToken } from "./interfaces";
+import { Glue } from "src";
+import GlueEvent from "../glue-event";
+import { IGlue } from "src/interfaces";
+import AUTH_EVENT_CONSTANTS from "./event-constants";
+import { ILogin, IUser, IUserWithToken } from "./interfaces";
 import { IAuth } from "./interfaces/IAuth";
 import IAuthProviderEnum from "./interfaces/IAuthProviderEnum";
 
 export class Auth implements IAuth {
   authBaseUrl: string = "";
   authToken: string = "";
+  glue: Glue;
 
-  constructor(AUTH_BASE_URL: string, AUTH_TOKEN?: string) {
+  constructor(AUTH_BASE_URL: string, GLUE: Glue, AUTH_TOKEN?: string) {
     this.authBaseUrl = AUTH_BASE_URL;
     this.authToken = AUTH_TOKEN ?? "";
+    this.glue = GLUE;
   }
 
   async loginWithEmailPassword(email: string, password: string) {
@@ -121,8 +127,19 @@ export class Auth implements IAuth {
   }
 
   //@setAuthToken
-  setAuthToken(token: string) {
-    this.authToken = token;
+  setAuthToken(_token: string) {
+    this.authToken = _token;
+
+    // DISPATCHING EVENTS
+    this.glue.dispatchEvent(
+      GlueEvent(AUTH_EVENT_CONSTANTS.TOKEN_UPDATED, { detail: _token })
+    );
+    this.glue.dispatchEvent(
+      GlueEvent(AUTH_EVENT_CONSTANTS.ALL, { detail: _token })
+    );
+    this.glue.dispatchEvent(
+      GlueEvent(AUTH_EVENT_CONSTANTS.UPDATED, { detail: _token })
+    );
     return this.authToken;
   }
 
