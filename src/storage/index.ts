@@ -1,12 +1,13 @@
 import axios from "axios";
-var FormData = require("form-data");
+import FormData from "form-data";
+import { Glue } from "src";
 import { IStorage } from "./interfaces/IStorage";
 
 export class Storage implements IStorage {
   storageBaseUrl: string = "";
 
-  constructor() {
-    this.storageBaseUrl = process.env.STORAGE_BASE_URL || "http://localhost:9090/backend/storage";
+  constructor(STORAGE_BASE_URL: string, glue: Glue) {
+    this.storageBaseUrl = STORAGE_BASE_URL;
   }
 
   //@upload
@@ -15,13 +16,13 @@ export class Storage implements IStorage {
       const formData = new FormData();
       formData.append("file", file);
       const { data } = await axios.post(
-        `${this.storageBaseUrl}/upload`,
+        `${this.storageBaseUrl}/upload/`,
         formData,
         {
           headers: {
             "content-type": "multipart/form-data",
           },
-        },
+        }
       );
       return data;
     } catch (e) {
@@ -30,10 +31,10 @@ export class Storage implements IStorage {
   }
 
   //@upload
-  async getPresignedUrl(path: string): Promise<string> {
+  async getPublicUrl(path: string): Promise<string> {
     try {
       const { data } = await axios.get(
-        `${this.storageBaseUrl}/${path}`,
+        `${this.storageBaseUrl}/file/public/${path}`,
         {}
       );
       return data;
