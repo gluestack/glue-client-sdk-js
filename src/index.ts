@@ -7,10 +7,23 @@ import EventTarget from "@ungap/event-target";
    auth: Auth;
    storage: Storage;
 
-   constructor({ AUTH_BASE_URL }: { AUTH_BASE_URL: string }) {
+   constructor({
+     BASE_URL,
+     AUTH,
+   }: {
+     BASE_URL: string;
+     AUTH: {
+       INSTANCE_NAME?: string;
+       TOKEN?: string;
+     };
+   }) {
      super();
-     this.auth = new Auth(AUTH_BASE_URL, this);
+     this.auth = new Auth(
+       `${BASE_URL}${AUTH?.INSTANCE_NAME ? "/" + AUTH.INSTANCE_NAME : "/auth"}`,
+       this
+     );
      this.storage = new Storage();
+     AUTH?.TOKEN ? AUTH.TOKEN : undefined;
    }
  }
 

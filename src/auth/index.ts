@@ -1,9 +1,8 @@
 import axios from "axios";
 import { Glue } from "src";
 import GlueEvent from "../glue-event";
-import { IGlue } from "src/interfaces";
 import AUTH_EVENT_CONSTANTS from "./event-constants";
-import { ILogin, IUser, IUserWithToken } from "./interfaces";
+import { ILogin, IUserWithToken } from "./interfaces";
 import { IAuth } from "./interfaces/IAuth";
 import IAuthProviderEnum from "./interfaces/IAuthProviderEnum";
 
