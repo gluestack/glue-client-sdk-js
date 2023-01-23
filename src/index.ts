@@ -18,12 +18,16 @@ import EventTarget from "@ungap/event-target";
      };
    }) {
      super();
+
+     // Initialize Auth
      this.auth = new Auth(
-       `${BASE_URL}${AUTH?.INSTANCE_NAME ? "/" + AUTH.INSTANCE_NAME : "/auth"}`,
-       this
+       `${BASE_URL}/backend/auth`,
+       this,
+       AUTH?.TOKEN ? AUTH.TOKEN : undefined
      );
-     this.storage = new Storage();
-     AUTH?.TOKEN ? AUTH.TOKEN : undefined;
+
+     // Initialize Storage
+     this.storage = new Storage(`${BASE_URL}/backend/storage`, this);
    }
  }
 
