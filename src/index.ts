@@ -12,7 +12,7 @@ import EventTarget from "@ungap/event-target";
      AUTH,
    }: {
      BASE_URL: string;
-     AUTH: {
+     AUTH?: {
        INSTANCE_NAME?: string;
        TOKEN?: string;
      };

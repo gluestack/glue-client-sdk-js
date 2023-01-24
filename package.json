@@ -1,10 +1,9 @@
 {
   "name": "@gluestack/glue-client-sdk-js",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "description": "glue client sdk for gluestack apps",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "type": "module",
   "scripts": {
     "dev": "tsc --watch",
     "build": "tsc"
@@ -20,6 +19,7 @@
   "devDependencies": {
     "@types/node": "^18.11.18",
     "ts-node": "^10.9.1",
+    "tslib": "^2.4.1",
     "typescript": "^4.9.4"
   }
 }
