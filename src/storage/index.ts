@@ -1,6 +1,6 @@
 import axios from "axios";
 import FormData from "form-data";
-import { Glue } from "src";
+import { Glue } from "../";
 import { IStorage } from "./interfaces/IStorage";
 
 export class Storage implements IStorage {
@@ -41,5 +41,6 @@ export class Storage implements IStorage {
     } catch (e) {
       //
     }
+    return "";
   }
 }

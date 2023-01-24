@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Glue } from "src";
+import { Glue } from "../index";
 import GlueEvent from "../glue-event";
 import AUTH_EVENT_CONSTANTS from "./event-constants";
 import { ILogin, IUserWithToken } from "./interfaces";
@@ -45,7 +45,7 @@ export class Auth implements IAuth {
   async socialLogin(provider: IAuthProviderEnum) {
     return new Promise<IUserWithToken | string | null>(
       async (resolve, reject) => {
-        window.onmessage = async (event) => {
+        window.onmessage = async (event: any) => {
           if (event.data && typeof event.data === "string") {
             const data = JSON.parse(event?.data);
 

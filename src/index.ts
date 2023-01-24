@@ -3,9 +3,10 @@ import { Storage } from "./storage";
 import { IGlue } from "./interfaces/IGlue";
 import EventTarget from "@ungap/event-target";
 
- export class Glue extends EventTarget implements IGlue {
+ export class Glue implements IGlue {
    auth: Auth;
    storage: Storage;
+   target: EventTarget;
 
    constructor({
      BASE_URL,
@@ -17,8 +18,6 @@ import EventTarget from "@ungap/event-target";
        TOKEN?: string;
      };
    }) {
-     super();
-
      // Initialize Auth
      this.auth = new Auth(
        `${BASE_URL}/backend/auth`,
@@ -28,6 +27,12 @@ import EventTarget from "@ungap/event-target";
 
      // Initialize Storage
      this.storage = new Storage(`${BASE_URL}/backend/storage`, this);
+
+     this.target = new EventTarget();
+   }
+
+   dispatchEvent(e: Event) {
+     this.target.dispatchEvent(e);
    }
  }
 
