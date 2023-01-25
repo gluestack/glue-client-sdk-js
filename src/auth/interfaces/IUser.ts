@@ -8,4 +8,5 @@ export interface IUser {
   refresh_token?: string;
 }
 
-export interface IUser extends Record<string, string | number | boolean> {}
+export interface IUser
+  extends Record<string, string | number | boolean | undefined> {}

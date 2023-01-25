@@ -1,7 +1,8 @@
 import IAuthProviderEnum from "./IAuthProviderEnum";
+import { ILoginWithEmailPasswordArgs } from "./IAuth";
 
 export type ILogin =
   | {
       provider: IAuthProviderEnum;
     }
-  | { email: string; password: string };
+  | { args: ILoginWithEmailPasswordArgs };

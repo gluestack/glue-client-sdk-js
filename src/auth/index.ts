@@ -3,7 +3,11 @@ import { Glue } from "../index";
 import GlueEvent from "../glue-event";
 import AUTH_EVENT_CONSTANTS from "./event-constants";
 import { ILogin, IUserWithToken } from "./interfaces";
-import { IAuth } from "./interfaces/IAuth";
+import {
+  IAuth,
+  ILoginWithEmailPasswordArgs,
+  ISignupWithEmail,
+} from "./interfaces/IAuth";
 import IAuthProviderEnum from "./interfaces/IAuthProviderEnum";
 
 export class Auth implements IAuth {
@@ -17,14 +21,11 @@ export class Auth implements IAuth {
     this.glue = GLUE;
   }
 
-  async loginWithEmailPassword(email: string, password: string) {
+  async loginWithEmailPassword(args: ILoginWithEmailPasswordArgs) {
     try {
       const { data } = await axios.post<IAPIResponse<IUserWithToken>>(
         `${this.authBaseUrl}/authentication/signin`,
-        {
-          email,
-          password,
-        }
+        { ...args }
       );
       if (data?.success && data?.data) {
         // SET THE TOKEN
@@ -40,6 +41,38 @@ export class Auth implements IAuth {
       }
       return message;
     }
+  }
+
+  async socialSignup(provider: IAuthProviderEnum) {
+    return new Promise<IUserWithToken | string | null>(
+      async (resolve, reject) => {
+        window.onmessage = async (event: any) => {
+          if (event.data && typeof event.data === "string") {
+            const data = JSON.parse(event?.data);
+
+            if ("token" in data) {
+              this.setAuthToken(data.token);
+              try {
+                const userWithToken = await this.getUser();
+
+                if (userWithToken) {
+                  resolve(userWithToken);
+                  return;
+                }
+              } catch (error) {
+                resolve(null);
+              }
+            }
+          }
+        };
+
+        window.open(
+          `${this.authBaseUrl}/authentication/signup/${provider}`,
+          "_blank",
+          "location=yes,height=570,width=520,scrollbars=yes,status=yes"
+        );
+      }
+    );
   }
 
   async socialLogin(provider: IAuthProviderEnum) {
@@ -75,14 +108,12 @@ export class Auth implements IAuth {
   }
 
   //@signupWithEmail
-  async signupWithEmail(name: string, email: string, password: string) {
+  async signupWithEmail(args: ISignupWithEmail) {
     try {
       const { data } = await axios.post<IAPIResponse<IUserWithToken>>(
         `${this.authBaseUrl}/authentication/signup`,
         {
-          name,
-          email,
-          password,
+          ...args,
         }
       );
 
@@ -108,21 +139,20 @@ export class Auth implements IAuth {
 
   //@login
   async login(authObject: ILogin) {
-    if ("provider" in authObject) {
-      switch (authObject.provider) {
-        case IAuthProviderEnum.google:
-          return await this.socialLogin(authObject.provider);
-        case IAuthProviderEnum.github:
-          return await this.socialLogin(authObject.provider);
-        case IAuthProviderEnum.microsoft:
-          return await this.socialLogin(authObject.provider);
-      }
+    if ("args" in authObject) {
+      return await this.loginWithEmailPassword({
+        ...authObject.args,
+      });
     }
 
-    return await this.loginWithEmailPassword(
-      authObject.email,
-      authObject.password
-    );
+    switch (authObject.provider) {
+      case IAuthProviderEnum.github:
+        return await this.socialLogin(authObject.provider);
+      case IAuthProviderEnum.microsoft:
+        return await this.socialLogin(authObject.provider);
+      default:
+        return await this.socialLogin(authObject.provider);
+    }
   }
 
   //@setAuthToken
@@ -134,7 +164,9 @@ export class Auth implements IAuth {
       GlueEvent(AUTH_EVENT_CONSTANTS.TOKEN_UPDATED, { detail: _token })
     );
     this.glue.dispatchEvent(
-      GlueEvent(AUTH_EVENT_CONSTANTS.ALL, { detail: _token })
+      GlueEvent(AUTH_EVENT_CONSTANTS.ALL, {
+        detail: _token,
+      })
     );
     this.glue.dispatchEvent(
       GlueEvent(AUTH_EVENT_CONSTANTS.UPDATED, { detail: _token })
