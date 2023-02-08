@@ -1,6 +1,6 @@
 {
   "name": "@gluestack/glue-client-sdk-js",
-  "version": "0.0.10",
+  "version": "0.0.12",
   "description": "glue client sdk for gluestack apps",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
